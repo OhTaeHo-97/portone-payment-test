@@ -26,6 +26,10 @@ logging:
       springframework:
         orm:
           jpa: DEBUG
+      hibernate:
+        SQL: debug
+        type: trace
+    com.example.portone: debug
 
 iamport:
   key: ${IAMPORT_KEY}

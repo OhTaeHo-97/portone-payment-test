@@ -25,6 +25,11 @@ public class PaymentController {
 
     @PostMapping("/verifyCertification/{imp_uid}")
     public IamportResponse<Certification> validateIamPortCertification(@PathVariable String imp_uid) throws IamportResponseException, IOException {
+        log.trace("trace: imp_uid : {}", imp_uid);
+        log.debug("debug: imp_uid : {}", imp_uid);
+        log.info("info: imp_uid : {}", imp_uid);
+        log.warn("warn: imp_uid : {}", imp_uid);
+        log.error("error: imp_uid : {}", imp_uid);
         return portoneService.verifyCertification(imp_uid);
     }
 }

@@ -42,6 +42,7 @@ public class PortoneService {
         log.info("이름 : {}", certificationData.getName());
         log.info("성별 : {}", certificationData.getGender());
         log.info("핸드폼 번호 : {}", certificationData.getPhone());
+        log.info("생년월일 : {}", certificationData.getBirth());
 
         return certification;
     }
