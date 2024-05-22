@@ -46,23 +46,29 @@ public class PortoneService {
     }
 
     public IamportResponse<Payment> verifyPayment(String imp_uid) throws IamportResponseException, IOException {
-        try {
-            IamportResponse<Payment> payment = iamportClient.paymentByImpUid(imp_uid);
-            Payment paymentData = payment.getResponse();
-            log.info("결제 금액 : {}", paymentData.getAmount());
-            log.info("결제 요청 응답. 결제 내역 - 주문 번호 : {}", payment.getResponse());
-            return payment;
-        } catch (IamportResponseException e) {
-            throw new IllegalArgumentException("금액 잘못됨");
-        } catch (IOException e) {
-            throw new RuntimeException("서버 오류");
-        }
+//        try {
+//            IamportResponse<Payment> payment = iamportClient.paymentByImpUid(imp_uid);
+//            Payment paymentData = payment.getResponse();
+//            log.info("결제 금액 : {}", paymentData.getAmount());
+//            log.info("결제 요청 응답. 결제 내역 - 주문 번호 : {}", payment.getResponse());
+//            return payment;
+//        } catch (IamportResponseException e) {
+//            throw new IllegalArgumentException("금액 잘못됨");
+//        } catch (IOException e) {
+//            throw new RuntimeException("서버 오류");
+//        }
+
+        IamportResponse<Payment> payment = iamportClient.paymentByImpUid(imp_uid);
+        Payment paymentData = payment.getResponse();
+        log.info("결제 금액 : {}", paymentData.getAmount());
+        log.info("결제 요청 응답. 결제 내역 - 주문 번호 : {}", payment.getResponse());
+        return payment;
     }
 
     public Payment validatePayment(PostPayment postPayment) throws IamportResponseException, IOException {
         com.example.portone.entity.PrePayment prePayment = prePaymentRepository.findByMerchantUid(postPayment.getMerchant_uid())
                 .orElseThrow(() -> new IllegalArgumentException("결제 정보 없음"));
-        BigDecimal preAmount = prePayment.getAmount();
+        BigDecimal preAmount = prePayment.getAmount().setScale(0, BigDecimal.ROUND_FLOOR);
 
         IamportResponse<Payment> response = iamportClient.paymentByImpUid(postPayment.getImp_uid());
         BigDecimal paidAmount = response.getResponse().getAmount();
