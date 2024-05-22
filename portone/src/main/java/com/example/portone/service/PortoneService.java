@@ -59,7 +59,7 @@ public class PortoneService {
         }
     }
 
-    public void validatePayment(PostPayment postPayment) throws IamportResponseException, IOException {
+    public Payment validatePayment(PostPayment postPayment) throws IamportResponseException, IOException {
         com.example.portone.entity.PrePayment prePayment = prePaymentRepository.findByMerchantUid(postPayment.getMerchant_uid())
                 .orElseThrow(() -> new IllegalArgumentException("결제 정보 없음"));
         BigDecimal preAmount = prePayment.getAmount();
@@ -68,8 +68,15 @@ public class PortoneService {
         BigDecimal paidAmount = response.getResponse().getAmount();
 
         if (!preAmount.equals(paidAmount)) {
-            // 환불
+            CancelData cancelData = cancelPayment(response);
+            iamportClient.cancelPaymentByImpUid(cancelData);
         }
+
+        return response.getResponse();
+    }
+
+    public CancelData cancelPayment(IamportResponse<Payment> response) {
+        return new CancelData(response.getResponse().getImpUid(), true);
     }
 
     public IamportResponse<Certification> verifyCertification(String imp_uid) throws IamportResponseException, IOException {

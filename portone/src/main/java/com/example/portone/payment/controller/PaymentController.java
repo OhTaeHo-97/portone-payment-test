@@ -32,8 +32,8 @@ public class PaymentController {
     }
 
     @PostMapping("/payment/validate")
-    public void validatePayment(@RequestBody PostPayment postPayment) throws IamportResponseException, IOException {
-        portoneService.validatePayment(postPayment);
+    public Payment validatePayment(@RequestBody PostPayment postPayment) throws IamportResponseException, IOException {
+        return portoneService.validatePayment(postPayment);
     }
 
     @PostMapping("/verifyCertification/{imp_uid}")
