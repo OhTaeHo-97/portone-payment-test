@@ -8,4 +8,10 @@ public class PaymentDto {
         private String merchant_uid;
         private int totalPrice;
     }
+
+    @Getter
+    public static class PostPayment {
+        private String merchant_uid;
+        private String imp_uid;
+    }
 }

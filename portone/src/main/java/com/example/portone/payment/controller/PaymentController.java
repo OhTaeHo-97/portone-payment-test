@@ -1,5 +1,6 @@
 package com.example.portone.payment.controller;
 
+import com.example.portone.dto.PaymentDto.PostPayment;
 import com.example.portone.dto.PaymentDto.PrePayment;
 import com.example.portone.service.PortoneService;
 import com.siot.IamportRestClient.exception.IamportResponseException;
@@ -28,6 +29,11 @@ public class PaymentController {
     @PostMapping("/verifyIamport/{imp_uid}")
     public IamportResponse<Payment> validateIamport(@PathVariable String imp_uid) throws IamportResponseException, IOException {
         return portoneService.verifyPayment(imp_uid);
+    }
+
+    @PostMapping("/payment/validate")
+    public void validatePayment(@RequestBody PostPayment postPayment) throws IamportResponseException, IOException {
+        portoneService.validatePayment(postPayment);
     }
 
     @PostMapping("/verifyCertification/{imp_uid}")

@@ -1,8 +1,11 @@
 package com.example.portone.service;
 
+import com.example.portone.dto.PaymentDto.PostPayment;
 import com.example.portone.dto.PaymentDto.PrePayment;
+import com.example.portone.repository.PrePaymentRepository;
 import com.siot.IamportRestClient.IamportClient;
 import com.siot.IamportRestClient.exception.IamportResponseException;
+import com.siot.IamportRestClient.request.CancelData;
 import com.siot.IamportRestClient.request.PrepareData;
 import com.siot.IamportRestClient.response.Certification;
 import com.siot.IamportRestClient.response.IamportResponse;
@@ -12,10 +15,12 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import javax.annotation.PostConstruct;
 import javax.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+@RequiredArgsConstructor
 @Service
 @Transactional
 @Slf4j
@@ -27,6 +32,8 @@ public class PortoneService {
 
     private IamportClient iamportClient;
 
+    private final PrePaymentRepository prePaymentRepository;
+
     @PostConstruct
     public void init() {
         this.iamportClient = new IamportClient(restApiKey, restApiSecret);
@@ -35,6 +42,7 @@ public class PortoneService {
     public void preparePayment(PrePayment prePayment) throws IamportResponseException, IOException {
         PrepareData prepareData = new PrepareData(prePayment.getMerchant_uid(), BigDecimal.valueOf(prePayment.getTotalPrice()));
         iamportClient.postPrepare(prepareData);
+        prePaymentRepository.save(new com.example.portone.entity.PrePayment(prePayment.getMerchant_uid(), BigDecimal.valueOf(prePayment.getTotalPrice())));
     }
 
     public IamportResponse<Payment> verifyPayment(String imp_uid) throws IamportResponseException, IOException {
@@ -48,6 +56,19 @@ public class PortoneService {
             throw new IllegalArgumentException("금액 잘못됨");
         } catch (IOException e) {
             throw new RuntimeException("서버 오류");
+        }
+    }
+
+    public void validatePayment(PostPayment postPayment) throws IamportResponseException, IOException {
+        com.example.portone.entity.PrePayment prePayment = prePaymentRepository.findByMerchantUid(postPayment.getMerchant_uid())
+                .orElseThrow(() -> new IllegalArgumentException("결제 정보 없음"));
+        BigDecimal preAmount = prePayment.getAmount();
+
+        IamportResponse<Payment> response = iamportClient.paymentByImpUid(postPayment.getImp_uid());
+        BigDecimal paidAmount = response.getResponse().getAmount();
+
+        if (!preAmount.equals(paidAmount)) {
+            // 환불
         }
     }
 
